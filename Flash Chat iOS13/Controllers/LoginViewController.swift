@@ -7,7 +7,7 @@
 //
 
 import UIKit
-
+import FirebaseAuth
 class LoginViewController: UIViewController {
 
     @IBOutlet weak var emailTextfield: UITextField!
@@ -15,6 +15,26 @@ class LoginViewController: UIViewController {
     
 
     @IBAction func loginPressed(_ sender: UIButton) {
+        
+        if let email = emailTextfield.text, let password = passwordTextfield.text {
+            login(email: email , password: password)
+        }
+        else{
+            print("e posta veya şifre kutusu boş olamaz")
+        }
+        
     }
     
+    func login (email : String, password : String){
+        Auth.auth().signIn(withEmail: email, password: password) { [weak self] authResult, error in
+          
+            if let e = error {
+                print(e)
+            }
+            else {
+                self?.performSegue(withIdentifier: K.loginSegue, sender: self)
+            }
+          // ...
+        }
+    }
 }
