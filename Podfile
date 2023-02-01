@@ -8,5 +8,7 @@ use_frameworks!
 pod 'CLTypingLabel','~> 0.4.0'
 pod 'FirebaseAuth'
 pod 'Firebase'
+pod 'FirebaseFirestore'
+
 
 end

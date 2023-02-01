@@ -8,6 +8,7 @@
 
 import UIKit
 import FirebaseAuth
+import FirebaseFirestore
 
 class ChatViewController: UIViewController {
 
@@ -15,23 +16,59 @@ class ChatViewController: UIViewController {
     @IBOutlet weak var messageTextfield: UITextField!
     @IBOutlet weak var logOutButton: UIBarButtonItem!
     
-    var messages = [
-    Messages(sender: "a@b.com", messages: "adsad asdasd asdasd \n asdad asdasd \n asdasd asdas asdasd asdasd adsad asdasd asdasda asdasd asdasd"),
-    Messages(sender: "a@b.com", messages: "2. mesaj"),
-    Messages(sender: "a@b.com", messages: "3. mesaj")
-    ]
+    var messages :[Messages] = []
     
-    
+     
+    let db = Firestore.firestore()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.dataSource = self
         
         tableView.register(UINib(nibName: K.cellNibName, bundle: nil), forCellReuseIdentifier: K.cellIdentifier)
+        loadMessage()
     }
     
+    func loadMessage(){
+        
+        db.collection(K.FStore.collectionName).order(by: <#T##String#>) .addSnapshotListener() { (querySnapshot, err) in
+            self.messages = []
+            if let err = err {
+                print("Error getting documents: \(err)")
+            } else {
+                for document in querySnapshot!.documents {
+                    
+                    print("\(document.documentID) => \(document.data())")
+                    let doc = document.data()
+                    self.messages.append(Messages(sender: doc[K.FStore.senderField] as? String ?? "", messages: doc[K.FStore.bodyField] as? String ?? ""))
+                    
+                   
+                    DispatchQueue.main.async {
+                        self.tableView.reloadData()
+                    }
+                    
+                }
+            }
+        }
+    }
     @IBAction func sendPressed(_ sender: UIButton) {
-        messageTextfield.text = "çıkış yapıldı"
+        
+       if let message = messageTextfield.text,
+        let email = Auth.auth().currentUser?.email
+        {
+           messages.append(Messages(sender: email, messages: message))
+           db.collection(K.FStore.collectionName).addDocument(data: [K.FStore.senderField : email, K.FStore.bodyField : message])
+           {
+               (error) in if let e = error {
+                   print("hata oldu")
+               }
+               else {
+                   print("data gönderildi")
+               }
+           }
+           
+           
+       }
        
       
       
