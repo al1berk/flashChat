@@ -31,7 +31,7 @@ class ChatViewController: UIViewController {
     
     func loadMessage(){
         
-        db.collection(K.FStore.collectionName).order(by: <#T##String#>) .addSnapshotListener() { (querySnapshot, err) in
+        db.collection(K.FStore.collectionName).order(by: K.FStore.dateField) .addSnapshotListener() { (querySnapshot, err) in
             self.messages = []
             if let err = err {
                 print("Error getting documents: \(err)")
@@ -57,13 +57,14 @@ class ChatViewController: UIViewController {
         let email = Auth.auth().currentUser?.email
         {
            messages.append(Messages(sender: email, messages: message))
-           db.collection(K.FStore.collectionName).addDocument(data: [K.FStore.senderField : email, K.FStore.bodyField : message])
+           db.collection(K.FStore.collectionName).addDocument(data: [K.FStore.senderField : email, K.FStore.bodyField : message,K.FStore.dateField : Date().timeIntervalSince1970])
            {
                (error) in if let e = error {
                    print("hata oldu")
                }
                else {
                    print("data gönderildi")
+                   self.messageTextfield.text = ""
                }
            }
            

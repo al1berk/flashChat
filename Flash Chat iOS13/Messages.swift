@@ -10,4 +10,5 @@ import Foundation
 struct Messages {
     var sender : String
     var messages : String
+    
 }
